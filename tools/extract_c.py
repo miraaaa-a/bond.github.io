@@ -3,6 +3,10 @@ from openpyxl.utils import column_index_from_string as ci
 src=sys.argv[1]; out=sys.argv[2]; os.makedirs(out,exist_ok=True)
 wb=openpyxl.load_workbook(src,data_only=True)
 S=wb['Sheet2'];D=wb['DATA'];T=wb['통계'];B=wb['본스통계']
+from openpyxl.utils import get_column_letter as gl
+_lab={B.cell(1,c).value:c for c in range(1,B.max_column+1) if B.cell(1,c).value in ('평균','STD','평균+2STD','평균-2STD','STD60')}
+OFF=[_lab['평균'],_lab['STD'],_lab['평균+2STD'],_lab['평균-2STD'],_lab['STD60']]  # 블록 시작 열 (평균 블록은 B열)
+def bcol(m,blk): return gl(ci(m)-OFF[0]+OFF[blk])  # 평균 열 문자 -> 같은 지표의 다른 블록 열 문자
 def num(x,r=2):
     if isinstance(x,bool) or not isinstance(x,(int,float)): return ''
     y=round(float(x),r); return int(y) if y==int(y) else y
@@ -26,18 +30,26 @@ for r in range(3,B.max_row+1):
 for k,nm in enumerate(names2):
     cur=S.cell(13,3+k).value
     st=lambda off: B.cell(br,off+k).value if br else None
-    m=st(2); diff=S.cell(15,3+k).value
-    rows.append([grp2[k],nm,num(cur),num(m),num(diff),num(st(23)),num(st(44)),num(st(65)),num(st(86))])
+    m=st(OFF[0]); diff=S.cell(15,3+k).value
+    rows.append([grp2[k],nm,num(cur),num(m),num(diff),num(st(OFF[1])),num(st(OFF[2])),num(st(OFF[3])),num(st(OFF[4]))])
+# 은행채 본드스왑 1Y: 현재값은 DATA CO열(기준일 행), 통계는 본스통계 W열 계열
+for dr in range(14,300):
+    if D.cell(dr,ci('AK')).value==asof: break
+cur=D.cell(dr,ci('CO')).value; k=ci('W')-OFF[0]
+st=lambda off: B.cell(br,off+k).value if br else None
+m=st(OFF[0])
+rows.append(['본드스왑 은행채','본스 은행채1Y',num(cur),num(m),num(cur-m) if isinstance(cur,(int,float)) and isinstance(m,(int,float)) else '',num(st(OFF[1])),num(st(OFF[2])),num(st(OFF[3])),num(st(OFF[4]))])
 w('spread_tbl',['구분','스프레드','현재','평균6M','대비','표준편차6M','평균+2STD','평균-2STD','표준편차60D'],rows)
 w('spread_asof',['기준일'],[[d(S['A3'].value)]])
 # time series: (id, data col, stats sheet, mean col, up col, dn col)
 spec=[('s1','AL',T,'B','AM','BF'),('s2','AM',T,'C','AN','BG'),('s3','AN',T,'D','AO','BH'),('s4','AO',T,'E','AP','BI'),
-('s5','BD',B,'B','AR','BM'),('s6','BF',B,'D','AT','BO'),('s7','AR',T,'H','AS','BL'),('s8','AS',T,'I','AT','BM'),
-('s9','AT',T,'J','AU','BN'),('s10','AV',T,'L','AW','BP'),('s11','AW',T,'M','AX','BQ'),('s12','AY',T,'O','AZ','BS'),
-('s13','BA',T,'Q','BB','BU'),('s14','BB',T,'R','BC','BV'),('s17','AX',T,'N','AY','BR'),('s16','BP',B,'N','BD','BY'),
-('s15','BX',B,'P','BF','CA'),('s18','BY',B,'Q','BG','CB'),('s19','BZ',B,'R','BH','CC'),('s20','CA',B,'S','BI','CD'),
-('s21','CH',B,'T','BJ','CE'),('s22','CI',B,'U','BK','CF'),('s23','CJ',B,'V','BL','CG'),
-('s25','CL',None,None,None,None),('s26','CM',None,None,None,None),('s27','CN',None,None,None,None)]
+('s7','AR',T,'H','AS','BL'),('s8','AS',T,'I','AT','BM'),('s9','AT',T,'J','AU','BN'),('s10','AV',T,'L','AW','BP'),
+('s11','AW',T,'M','AX','BQ'),('s12','AY',T,'O','AZ','BS'),('s13','BA',T,'Q','BB','BU'),('s14','BB',T,'R','BC','BV'),('s17','AX',T,'N','AY','BR')]
+# 본스통계 계열: (id, DATA 열, 평균 열) -> +2STD/-2STD 열은 블록 위치로 계산
+for sid,dc,m in [('s5','BD','B'),('s6','BF','D'),('s16','BP','N'),('s15','BX','P'),('s18','BY','Q'),('s19','BZ','R'),('s20','CA','S'),
+                 ('s21','CH','T'),('s22','CI','U'),('s23','CJ','V'),('s28','CO','W')]:
+    spec.append((sid,dc,B,m,bcol(m,2),bcol(m,3)))
+spec+=[('s25','CL',None,None,None,None),('s26','CM',None,None,None,None),('s27','CN',None,None,None,None)]
 cols=['일자']
 for s in spec: cols+= [s[0]] if s[2] is None else [s[0],s[0]+'_m',s[0]+'_u',s[0]+'_d']
 rows=[]
