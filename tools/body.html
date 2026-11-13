@@ -90,6 +90,15 @@
 .ds-kpi .k-val { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); line-height: 1.1; font-variant-numeric: tabular-nums; }
 .ds-kpi .k-val small { font-family: var(--font-anthropic-sans); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin-left: 4px; }
 .ds-kpi .k-sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.ds-memo { background: var(--color-panel); border: 1px solid var(--color-border-line); border-left: 3px solid var(--color-fg); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); }
+.ds-memo h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0 0 var(--cds-gap-sm); display: flex; justify-content: space-between; align-items: baseline; gap: var(--cds-gap-sm); flex-wrap: wrap; }
+.ds-memo h2 a { font-size: var(--cds-font-size-caption); font-weight: 400; color: var(--color-fg-muted); text-decoration: none; }
+.ds-memo h2 a:hover { text-decoration: underline; }
+.ds-memo-body { font-size: var(--cds-font-size-body); line-height: 1.65; }
+.ds-memo-body p { margin: 0 0 6px; }
+.ds-memo-body ul { margin: 0 0 6px; padding-left: 20px; }
+.ds-memo-body h4 { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin: 10px 0 4px; }
+.ds-memo-body .muted { color: var(--color-fg-muted); }
 </style>
 
 <div class="ds">
@@ -97,6 +106,11 @@
     <h1>LS증권 채권운용</h1>
     <p class="ds-asof">기준일 <span data-draw="asof">—</span> · 전일 <span data-draw="asof_prev">—</span> · 전주 <span data-draw="asof_week">—</span> · 전월 <span data-draw="asof_month">—</span></p>
   </header>
+
+  <section class="ds-memo" id="memo" aria-label="Weekly Memo">
+    <h2>Weekly Memo <a href="https://github.com/miraaaa-a/bond.github.io/edit/main/memo.md" target="_blank" rel="noopener">✎ 메모 편집</a></h2>
+    <div class="ds-memo-body" id="memo-body"><p class="muted">메모 불러오는 중…</p></div>
+  </section>
 
   <section class="ds-mkt" id="market" aria-label="시장 지표">
     <div class="ds-tick"><span class="t-lab">국고 3년</span><b class="t-val" data-draw="mkt_val" data-name="국고 3년">—</b><span class="t-chg" data-draw="mkt_chg" data-name="국고 3년">—</span></div>

@@ -574,3 +574,28 @@ dash.calc('fx_since', {
 dash._start();
 let _rw = window.innerWidth;
 window.addEventListener('resize', () => { if (Math.abs(window.innerWidth - _rw) < 10) return; _rw = window.innerWidth; clearTimeout(window._rt); window._rt = setTimeout(dash._charts, 200); });
+
+// ---- Weekly Memo (memo.md, 실시간 로드) ----
+(function () {
+  const box = document.getElementById('memo-body'); if (!box) return;
+  const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const inl = (t) => esc(t).replace(/\*\*(.+?)\*\*/g, '<b>$1</b>');
+  const render = (md) => {
+    const out = []; let ul = false;
+    md.replace(/\r/g, '').split('\n').forEach((ln) => {
+      const t = ln.trim();
+      const li = /^[-*·]\s+(.*)/.exec(t);
+      if (li) { if (!ul) { out.push('<ul>'); ul = true; } out.push('<li>' + inl(li[1]) + '</li>'); return; }
+      if (ul) { out.push('</ul>'); ul = false; }
+      if (!t) return;
+      const h = /^#{1,6}\s+(.*)/.exec(t);
+      out.push(h ? '<h4>' + inl(h[1]) + '</h4>' : '<p>' + inl(t) + '</p>');
+    });
+    if (ul) out.push('</ul>');
+    return out.join('');
+  };
+  fetch('memo.md?t=' + Date.now(), { cache: 'no-store' })
+    .then((r) => (r.ok ? r.text() : Promise.reject()))
+    .then((md) => { box.innerHTML = md.trim() ? render(md) : '<p class="muted">이번 주 메모가 아직 없습니다.</p>'; })
+    .catch(() => { box.innerHTML = '<p class="muted">메모를 불러오지 못했습니다.</p>'; });
+})();
