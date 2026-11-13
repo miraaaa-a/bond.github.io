@@ -69,6 +69,7 @@ if '기타데이터' in wb.sheetnames:
         out.sort(); return out
     ad=asof.date() if isinstance(asof,dt.datetime) else asof
     spec=[('국고 3년','I','K','bp'),('국고 10년','I','M','bp'),('국고 30년','I','N','bp'),
+          ('CD 1M','AC','AD','bp'),('CD 3M','AC','AF','bp'),
           ('3선','A','B','틱'),('10선','E','F','틱'),('미 2Y','P','Q','bp'),('미 10Y','R','S','bp'),
           ('WTI','Y','Z','%'),('코스피','U','V','%')]
     rows=[]

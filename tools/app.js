@@ -509,7 +509,7 @@ dash.draw('basket_rows', (tb) => {
   dash.draw('mkt_val', (el) => {
     const r = pick(el); if (!r) { el.textContent = '—'; return; }
     const v = +r['값'], name = r['지표'];
-    el.textContent = name === '코스피' ? d3.format(',.0f')(v) : (name === 'WTI' || r['단위'] === '틱') ? d3.format('.2f')(v) : d3.format('.3f')(v);
+    el.textContent = name === '코스피' ? d3.format(',.0f')(v) : (name === 'WTI' || name.startsWith('CD') || r['단위'] === '틱') ? d3.format('.2f')(v) : d3.format('.3f')(v);
   });
   dash.draw('mkt_chg', (el) => {
     const r = pick(el); if (!r) { el.textContent = '—'; return; }
